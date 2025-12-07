@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IOTA Sensor Dashboard</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f4f7f9; color: #333; margin: 0; padding: 2rem; }
+        .container { max-width: 800px; margin: auto; background: white; padding: 2rem; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+        h1 { color: #1a73e8; }
+        .live-data { background: #e8f0fe; border-left: 4px solid #1a73e8; padding: 1rem; margin-bottom: 1.5rem; border-radius: 4px; }
+        #temp { font-size: 2.5rem; font-weight: bold; }
+        #timestamp { font-size: 0.9rem; color: #5f6368; }
+        #history-log { list-style-type: none; padding: 0; max-height: 300px; overflow-y: auto; border: 1px solid #ddd; border-radius: 4px; padding: 1rem; }
+        #history-log li { padding: 0.75rem; border-bottom: 1px solid #eee; }
+        #history-log li:last-child { border-bottom: none; }
+        a { color: #1a73e8; text-decoration: none; }
+        a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Bảng điều khiển Cảm biến IOTA</h1>
+        <div class="live-data">
+            <h2>Dữ liệu trực tiếp</h2>
+            <p><span id="temp">--.-</span> &deg;C</p>
+            <p id="timestamp">Đang chờ dữ liệu...</p>
+        </div>
+        <h2>Lịch sử gửi</h2>
+        <ul id="history-log">
+            <li>Chưa có dữ liệu...</li>
+        </ul>
+    </div>
+
+    <!-- Nạp thư viện Socket.IO và file script chính -->
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="/js/main.js"></script>
+</body>
+</html>
