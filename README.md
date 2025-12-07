@@ -162,3 +162,13 @@ Phần này mô phỏng một thiết bị gửi dữ liệu lên Layer 1 của 
     ```
 
     Nếu thành công, bạn sẽ thấy một liên kết đến trình khám phá (explorer) trong console. Bạn có thể nhấp vào đó để xem giao dịch và dữ liệu đã được đính kèm trên Tangle.
+
+---
+
+## Tài liệu tham khảo
+
+-   **IOTA Documentation:** https://docs.iota.org/
+-   **IOTA Smart Contracts (ISCP) Wiki:** https://wiki.iota.org/smart-contracts/overview
+-   **IOTA SDK Library (TypeScript):** https://wiki.iota.org/iota-sdk/welcome
+-   **The Rust Programming Language Book:** https://doc.rust-lang.org/book/
+-   **Shimmer Testnet Faucet:** https://faucet.testnet.shimmer.network/
