@@ -1,5 +1,7 @@
 # IOTA Sensor Project
 
+**Smart Contract trên Shimmer Testnet:** [0xf81ac401...c5740c](https://explorer.iota.org/address/0xf81ac4012c01ffcd6f0a79e829fae1b1374266e8059d943f197c2d7d54c5740c?network=testnet)
+
 Dự án này là một ví dụ hoàn chỉnh minh họa cách xây dựng một ứng dụng IoT trên nền tảng IOTA, bao gồm hai thành phần chính:
 
 1.  **Smart Contract (Layer 2):** Một smart contract được viết bằng **Rust**, chạy trên chuỗi IOTA Smart Contract (ISCP). Nó có chức năng nhận, lưu trữ và truy vấn dữ liệu từ các cảm biến.
