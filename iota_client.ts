@@ -43,7 +43,7 @@ export async function sendTransactionWithData(tag: string, data: string): Promis
                 {
                     type: 3, // BasicOutput
                     amount: AMOUNT_TO_SEND,
-                    address: RECIPIENT_ADDRESS,
+                    recipientAddress: RECIPIENT_ADDRESS,
                 },
             ],
             // Đính kèm dữ liệu cảm biến vào giao dịch

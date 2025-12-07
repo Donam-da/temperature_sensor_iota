@@ -1,77 +1,136 @@
-# Dự án Gửi Dữ liệu Cảm biến lên IOTA Tangle (IOTA Sensor Project)
+# IOTA Sensor Project
 
-Dự án này là một ví dụ đơn giản sử dụng Node.js và TypeScript để gửi dữ liệu (ví dụ: từ cảm biến IoT) lên mạng lưới IOTA Shimmer Testnet. Dữ liệu được đính kèm vào một giao dịch có giá trị.
+Dự án này là một ví dụ hoàn chỉnh minh họa cách xây dựng một ứng dụng IoT trên nền tảng IOTA, bao gồm hai thành phần chính:
+
+1.  **Smart Contract (Layer 2):** Một smart contract được viết bằng **Rust**, chạy trên chuỗi IOTA Smart Contract (ISCP). Nó có chức năng nhận, lưu trữ và truy vấn dữ liệu từ các cảm biến.
+2.  **Client (Layer 1):** Một client được viết bằng **TypeScript** và Node.js, dùng để mô phỏng một thiết bị IoT gửi dữ liệu lên mạng lưới IOTA.
 
 ## Tính năng
 
--   Kết nối đến một node public của mạng Shimmer Testnet.
--   Sử dụng `SecretManager` với Mnemonic (cụm từ khôi phục) để quản lý ví và ký giao dịch.
--   Tạo và gửi một khối (block) chứa giao dịch chuyển một lượng token SMR.
--   Đính kèm dữ liệu tùy chỉnh (payload) vào giao dịch dưới dạng `tag` (để đánh dấu) và `data`.
--   In ra liên kết đến trình khám phá (explorer) để xem giao dịch sau khi gửi thành công.
+### Smart Contract (Rust)
+-   Viết bằng Rust và biên dịch sang WebAssembly (WASM).
+-   Cung cấp hàm `submitData` để các thiết bị gửi dữ liệu (ID thiết bị, giá trị, timestamp).
+-   Cung cấp hàm `getData` để truy vấn dữ liệu mới nhất của một thiết bị.
+-   Triển khai và tương tác thông qua `wasp-cli` trên Shimmer Testnet.
+
+### Client (TypeScript)
+-   Kết nối đến một node public của mạng Shimmer Testnet (Layer 1).
+-   Sử dụng `@iota/sdk` để tạo và gửi giao dịch.
+-   Đính kèm dữ liệu cảm biến (payload) vào một giao dịch Layer 1.
+-   Quản lý ví an toàn thông qua Mnemonic (khuyến khích sử dụng biến môi trường).
+
+## Cấu trúc thư mục
+
+```
+IOTA_Sensor_Project/
+├── contract/                 # Chứa mã nguồn của Smart Contract
+│   ├── src/
+│   │   └── lib.rs          # Logic của Smart Contract (Rust)
+│   └── Cargo.toml          # Cấu hình project Rust
+├── node_modules/
+├── iota_client.ts            # Logic client để gửi giao dịch L1
+├── index.ts                  # Điểm khởi chạy client TypeScript
+├── package.json
+├── readme.md                 # Tài liệu hướng dẫn (file này)
+└── tsconfig.json             # Cấu hình TypeScript (tùy chọn)
+```
 
 ## Điều kiện tiên quyết
 
 Trước khi bắt đầu, bạn cần chuẩn bị:
 
 1.  **Node.js**: Phiên bản 18.x trở lên. Bạn có thể tải tại nodejs.org.
-2.  **Ví IOTA/Shimmer**: Một ví trên mạng Shimmer Testnet.
-    -   Bạn có thể tạo ví bằng Firefly Wallet (nhớ chuyển sang chế độ Testnet trong cài đặt).
-    -   Lưu lại **cụm từ khôi phục (Mnemonic)** 24 từ của bạn.
-3.  **Token SMR Testnet**: Giao dịch cần một ít phí. Bạn có thể nhận token SMR miễn phí cho mạng thử nghiệm từ vòi (faucet).
-    -   Vào kênh `#faucet` trên Discord của IOTA.
-    -   Gửi lệnh: `!faucet smr <địa-chỉ-ví-của-bạn>`
-
-## Cài đặt
-
-1.  **Clone hoặc tải dự án**
-
-    Nếu dự án của bạn nằm trong một git repository:
+2.  **Rust Toolchain**:
     ```bash
-    git clone <your-repository-url>
-    cd IOTA_Sensor_Project
+    curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+    source "$HOME/.cargo/env"
+    ```
+3.  **WASM Target cho Rust**:
+    ```bash
+    rustup target add wasm32-unknown-unknown
+    ```
+4.  **Wasp-cli**: Công cụ dòng lệnh của IOTA Smart Contracts.
+    ```bash
+    cargo install wasp-cli
+    ```
+5.  **Ví Shimmer Testnet**:
+    -   Tạo ví bằng Firefly Wallet và chuyển sang chế độ Testnet.
+    -   Nhận token SMR Testnet từ Shimmer Faucet.
+
+## Cài đặt và Chạy
+
+Dự án có hai phần, bạn có thể thiết lập và chạy chúng độc lập.
+
+### Phần 1: Smart Contract (Rust)
+
+1.  **Biên dịch Smart Contract:**
+    Di chuyển vào thư mục `contract` và chạy lệnh build.
+    ```bash
+    cd contract
+    cargo build --release --target wasm32-unknown-unknown
+    ```
+    File smart contract sẽ được tạo tại `target/wasm32-unknown-unknown/release/sensor_data.wasm`.
+
+2.  **Cấu hình `wasp-cli`:**
+    Trỏ `wasp-cli` đến các node của Shimmer Testnet.
+    ```bash
+    wasp-cli set l1.apiaddress https://api.testnet.shimmer.network
+    wasp-cli set wasp.0.api https://api.wasp.sc.testnet.shimmer.network
     ```
 
-2.  **Tạo file `package.json`**
-
-    Nếu bạn chưa có, hãy chạy lệnh sau để khởi tạo một dự án Node.js:
+3.  **Thiết lập ví cho `wasp-cli`:**
+    Tạo một file `seed.txt` chứa 24 từ khôi phục của ví bạn và import vào `wasp-cli`.
     ```bash
-    npm init -y
+    # CẢNH BÁO: Lệnh này tạo file chứa key, chỉ dùng cho testnet.
+    echo "your 24-word mnemonic seed phrase here" > my-wallet-seed.txt
+    wasp-cli wallet import my-wallet --seed-file=my-wallet-seed.txt
     ```
 
-3.  **Cài đặt các thư viện cần thiết**
+4.  **Deploy Smart Contract:**
+    a. Deploy một chuỗi mới:
+    ```bash
+    wasp-cli chain deploy --chain=my-sensor-chain --alias=my-wallet
+    ```
+    *Lưu lại `ChainID` được trả về.*
 
-    Dự án này cần `@iota/sdk` để tương tác với Tangle và `ts-node` để chạy file TypeScript trực tiếp.
+    b. Deploy contract lên chuỗi:
+    ```bash
+    # Đảm bảo bạn đang ở trong thư mục 'contract'
+    wasp-cli chain deploy-contract wasmtime sensor_data "Sensor Data SC" target/wasm32-unknown-unknown/release/sensor_data.wasm --chain=my-sensor-chain --alias=my-wallet
+    ```
+
+5.  **Tương tác với Smart Contract:**
+    a. Gửi dữ liệu:
+    ```bash
+    wasp-cli chain post-request sensor_data submitData string deviceId string "temp-sensor-01" int value int64 25 --chain=my-sensor-chain --alias=my-wallet --allowance=1000000
+    ```
+    b. Đọc dữ liệu:
+    ```bash
+    wasp-cli chain call-view sensor_data getData string deviceId string "temp-sensor-01" --chain=my-sensor-chain
+    ```
+
+---
+
+### Phần 2: Client Gửi Dữ liệu (TypeScript)
+
+Phần này mô phỏng một thiết bị gửi dữ liệu lên Layer 1 của IOTA.
+
+1.  **Cài đặt dependencies:**
+    Tại thư mục gốc của project, chạy lệnh:
     ```bash
     npm install @iota/sdk
     npm install -D typescript ts-node @types/node
     ```
 
-4.  **Cấu hình ví của bạn**
-
+2.  **Cấu hình ví:**
     Mở file `iota_client.ts` và chỉnh sửa các hằng số sau:
+    -   `IOTA_WALLET_MNEMONIC`: Thay bằng **cụm từ khôi phục 24 từ** của ví Shimmer Testnet.
+    -   `RECIPIENT_ADDRESS`: Thay bằng địa chỉ nhận (bắt đầu bằng `smr1...`).
 
-    -   `IOTA_WALLET_MNEMONIC`: Thay thế chuỗi hiện tại bằng **cụm từ khôi phục 24 từ** của ví Shimmer Testnet của bạn.
+    **Khuyến nghị:** Để bảo mật, hãy sử dụng biến môi trường (ví dụ: dùng thư viện `dotenv`) thay vì hardcode vào file.
 
-        ```typescript
-        // CẢNH BÁO: Chỉ sử dụng Mnemonic của ví thử nghiệm (testnet).
-        const IOTA_WALLET_MNEMONIC = 'your twenty four testnet recovery words go here ...';
-        ```
-
-    -   `RECIPIENT_ADDRESS`: Thay thế bằng một địa chỉ nhận trên mạng Shimmer (có thể là một địa chỉ khác trong cùng ví của bạn, bắt đầu bằng `smr1...`).
-
-        ```typescript
-        const RECIPIENT_ADDRESS = 'smr1qq...'; // <== THAY THẾ BẰNG ĐỊA CHỈ NHẬN
-        ```
-
-## Cách chạy dự án
-
-Để thực thi việc gửi dữ liệu, bạn cần tạo một file để gọi hàm `sendTransactionWithData`.
-
-1.  **Tạo file `index.ts`**
-
-    Tạo một file mới tên là `index.ts` trong cùng thư mục với nội dung sau:
-
+3.  **Chạy Client:**
+    a. Tạo file `index.ts` ở thư mục gốc để gọi hàm gửi dữ liệu:
     ```typescript
     // index.ts
     import { sendTransactionWithData } from './iota_client';
@@ -80,32 +139,24 @@ Trước khi bắt đầu, bạn cần chuẩn bị:
         // Dữ liệu cảm biến mô phỏng
         const sensorData = {
             timestamp: new Date().toISOString(),
-            temperature: 25.5,
-            humidity: 60.1,
+            temperature: 27.1,
+            humidity: 65.3,
         };
 
         // Chuyển đối tượng JSON thành chuỗi
         const dataString = JSON.stringify(sensorData);
         const tag = 'SENSOR_DATA';
 
+        console.log('Đang gửi dữ liệu cảm biến lên Tangle...');
         await sendTransactionWithData(tag, dataString);
     }
 
     main().catch(console.error);
     ```
 
-2.  **Chạy file `index.ts`**
-
-    Sử dụng `ts-node` để chạy file TypeScript trực tiếp từ terminal:
+    b. Thực thi file `index.ts` bằng `ts-node`:
     ```bash
     npx ts-node index.ts
     ```
 
-3.  **Kiểm tra kết quả**
-
-    Nếu thành công, bạn sẽ thấy một thông báo trong console cùng với một liên kết đến trình khám phá Shimmer. Nhấp vào liên kết đó để xem chi tiết giao dịch và dữ liệu bạn đã gửi trên Tangle.
-
-    ```
-    Đang chuẩn bị và gửi giao dịch...
-    Gửi giao dịch thành công! Explorer: https://explorer.shimmer.network/shimmer/block/0x...
-    ```
+    Nếu thành công, bạn sẽ thấy một liên kết đến trình khám phá (explorer) trong console. Bạn có thể nhấp vào đó để xem giao dịch và dữ liệu đã được đính kèm trên Tangle.
